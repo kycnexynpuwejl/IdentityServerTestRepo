@@ -3,8 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace IS4TEST.API.Controllers;
 
-[Route("identity")]
-[Authorize]
+[Route("[controller]")]
 public class IdentityController : ControllerBase
 {
     [HttpGet]
