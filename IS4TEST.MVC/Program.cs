@@ -18,9 +18,8 @@ builder.Services.AddAuthentication(options =>
         options.ClientSecret = "secret";
         options.ResponseType = "code";
         options.SaveTokens = true;
-        options.Scope.Add("profile");
-        options.GetClaimsFromUserInfoEndpoint = true;
-        options.ClaimActions.MapUniqueJsonKey("myclaim1", "myclaim1");
+        options.Scope.Add("api1");
+        options.Scope.Add("offline_access");
     });
 
 

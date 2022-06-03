@@ -1,3 +1,7 @@
+using System.Reflection;
+using IdentityServerHost.Quickstart.UI;
+using Microsoft.EntityFrameworkCore;
+
 namespace IS4TEST.IdentityServer;
 
 public class Startup
@@ -8,21 +12,28 @@ public class Startup
     {
         Environment = environment;
     }
+    
+    string? migrationsAssembly = typeof(Startup).GetTypeInfo().Assembly.GetName().Name;
+    const string connectionString = "Data Source=IS4.db";
 
     public void ConfigureServices(IServiceCollection services)
     {
         services.AddControllersWithViews();
 
-        services.AddIdentityServer(options =>
+        services.AddIdentityServer()
+            .AddTestUsers(TestUsers.Users)
+            .AddConfigurationStore(options =>
             {
-                // see https://identityserver4.readthedocs.io/en/latest/topics/resources.html
-                options.EmitStaticAudienceClaim = true;
+                options.ConfigureDbContext = b => b.UseSqlite(connectionString,
+                    sql => sql.MigrationsAssembly(migrationsAssembly));
             })
-            .AddInMemoryIdentityResources(Config.IdentityResources)
-            .AddInMemoryApiScopes(Config.ApiScopes)
-            .AddInMemoryClients(Config.Clients)
-            // not recommended for production - you need to store your key material somewhere secure
+            .AddOperationalStore(options =>
+            {
+                options.ConfigureDbContext = b => b.UseSqlite(connectionString,
+                    sql => sql.MigrationsAssembly(migrationsAssembly));
+            })
             .AddDeveloperSigningCredential();
+
     }
 
     public void Configure(IApplicationBuilder app)
@@ -32,7 +43,7 @@ public class Startup
             app.UseDeveloperExceptionPage();
         }
 
-        
+        //app.InitializeDatabase();
         app.UseStaticFiles();
         app.UseRouting();
         
